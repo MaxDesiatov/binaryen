@@ -43,3 +43,6 @@ config.h
 # files related to VS Code
 /.history
 /.vscode
+
+# SwiftPM
+.build
