@@ -5,14 +5,15 @@ let package = Package(
   name: "binaryen",
   products: [
     .executable(name: "binaryen-test", targets: ["binaryen-test"]),
-    .library(name: "CBinaryen", targets: ["CBinaryen"]),
+    .library(name: "Binaryen", targets: ["Binaryen"])
   ],
   targets: [
-    .target(name: "binaryen-test", dependencies: ["CBinaryen"]),
+    .target(name: "binaryen-test", dependencies: ["Binaryen"]),
+    .target(name: "Binaryen", dependencies: ["CBinaryen"]),
     .target(
       name: "CBinaryen",
       path: "src",
-      exclude: ["tools", "support/threads.cpp"],
+      exclude: ["tools"],
       cxxSettings: [.headerSearchPath(".")]
     )
   ],
