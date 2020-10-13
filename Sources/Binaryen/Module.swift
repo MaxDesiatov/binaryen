@@ -11,6 +11,17 @@ public final class WasmModule {
     self.init(ref: BinaryenModuleCreate())
   }
 
+  // These control what features are allowed when validation and in passes.
+  public var features: WasmFeatures {
+    get { .init(rawValue: BinaryenModuleGetFeatures(ref)) }
+    set { BinaryenModuleSetFeatures(ref, newValue.rawValue) }
+  }
+
+  /// Start function. One per module
+  func set(startFunction: WasmFunction) {
+    BinaryenSetStart(ref, startFunction.ref)
+  }
+
   /// Deserialize a module from binary form.
   static func read(binary: inout [UInt8]) -> Self? {
     let count = binary.count
@@ -120,16 +131,16 @@ public final class WasmModule {
     params: WasmType,
     result: WasmType,
     locals: [WasmType] = [],
-    body: BinaryenExpressionRef
-  ) -> BinaryenFunctionRef {
+    body: WasmExpression
+  ) -> WasmFunction {
     name.withCString {
-      BinaryenAddFunction(ref, $0, params.rawValue, result.rawValue, nil, 0, body)
+      .init(ref: BinaryenAddFunction(ref, $0, params.rawValue, result.rawValue, nil, 0, body.ref))
     }
   }
 
-  func getFunction(name: String) -> BinaryenFunctionRef {
+  func getFunction(name: String) -> WasmFunction {
     name.withCString {
-      BinaryenGetFunction(ref, $0)
+      .init(ref: BinaryenGetFunction(ref, $0))
     }
   }
 
@@ -157,23 +168,23 @@ public final class WasmModule {
     }
   }
 
-  public func localGet(index: BinaryenIndex, type: WasmType) -> BinaryenExpressionRef {
-    BinaryenLocalGet(ref, index, type.rawValue)
+  public func localGet(index: BinaryenIndex, type: WasmType) -> WasmExpression {
+    .init(ref: BinaryenLocalGet(ref, index, type.rawValue))
   }
 
   public func localSet(
     index: BinaryenIndex,
-    value: BinaryenExpressionRef
-  ) -> BinaryenExpressionRef {
-    BinaryenLocalSet(ref, index, value)
+    value: WasmExpression
+  ) -> WasmExpression {
+    .init(ref: BinaryenLocalSet(ref, index, value.ref))
   }
 
   public func binary(
     instruction: WasmInstruction,
-    _ first: BinaryenExpressionRef,
-    _ second: BinaryenExpressionRef
-  ) -> BinaryenExpressionRef {
-    BinaryenBinary(ref, instruction.rawValue, first, second)
+    _ first: WasmExpression,
+    _ second: WasmExpression
+  ) -> WasmExpression {
+    .init(ref: BinaryenBinary(ref, instruction.rawValue, first.ref, second.ref))
   }
 
   deinit {
