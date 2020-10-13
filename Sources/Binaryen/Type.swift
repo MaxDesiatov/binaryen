@@ -1,19 +1,31 @@
 import CBinaryen
 
-public extension BinaryenType {
-  static var none: Self { BinaryenTypeNone() }
-  static var int32: Self { BinaryenTypeInt32() }
-  static var int64: Self { BinaryenTypeInt64() }
-  static var float32: Self { BinaryenTypeFloat32() }
-  static var float64: Self { BinaryenTypeFloat64() }
-  static var vec128: Self { BinaryenTypeVec128() }
-  static var funcRef: Self { BinaryenTypeFuncref() }
-  static var externRef: Self { BinaryenTypeExternref() }
-  static var exnRef: Self { BinaryenTypeExnref() }
-  static var anyRef: Self { BinaryenTypeAnyref() }
-  static var eqRef: Self { BinaryenTypeEqref() }
-  static var i31Ref: Self { BinaryenTypeI31ref() }
-  static var auto: Self { BinaryenTypeAuto() }
+public struct WasmType: RawRepresentable {
+  public let rawValue: BinaryenType
 
-  var arity: UInt32 { BinaryenTypeArity(self) }
+  init(value: BinaryenType) { rawValue = value }
+  public init?(rawValue: BinaryenType) { self.rawValue = rawValue }
+
+  public static var none: Self { .init(value: BinaryenTypeNone()) }
+  public static var int32: Self { .init(value: BinaryenTypeInt32()) }
+  public static var int64: Self { .init(value: BinaryenTypeInt64()) }
+  public static var float32: Self { .init(value: BinaryenTypeFloat32()) }
+  public static var float64: Self { .init(value: BinaryenTypeFloat64()) }
+  public static var vec128: Self { .init(value: BinaryenTypeVec128()) }
+  public static var funcRef: Self { .init(value: BinaryenTypeFuncref()) }
+  public static var externRef: Self { .init(value: BinaryenTypeExternref()) }
+  public static var exnRef: Self { .init(value: BinaryenTypeExnref()) }
+  public static var anyRef: Self { .init(value: BinaryenTypeAnyref()) }
+  public static var eqRef: Self { .init(value: BinaryenTypeEqref()) }
+  public static var i31Ref: Self { .init(value: BinaryenTypeI31ref()) }
+  public static var auto: Self { .init(value: BinaryenTypeAuto()) }
+
+  var arity: UInt32 { BinaryenTypeArity(rawValue) }
+}
+
+extension WasmType: ExpressibleByArrayLiteral {
+  public init(arrayLiteral elements: WasmType...) {
+    var elements = elements.map(\.rawValue)
+    self = .init(value: BinaryenTypeCreate(&elements, UInt32(elements.count)))
+  }
 }
